@@ -1,12 +1,13 @@
 <script setup>
-import ExampleComponent from '@/components/ExampleComponent.vue'
+import ImageUpload from '@/components/ImageUpload.vue'
+
 </script>
 
 <template>
-  <ExampleComponent
-    message="This is the ExampleComponent"
-    :showBorder="true"
-  />
+    <h1>Upload a pic to find something similar yay</h1>
+
+    <ImageUpload />
+
 </template>
 
 <style scoped>
