@@ -1,17 +1,29 @@
 <template>
-    <div class="image-upload">
-      <h2>Upload an image to find a match</h2>
-  
-      <input type="file" @change="onFileChange" accept="image/*" />
-      <button @click="submitImage" :disabled="!imageFile">Get Vector</button>
-  
-      <p v-if="status">{{ status }}</p>
-      <pre v-if="vector">🔎 Vector (first few): {{ vector.slice(0, 5) }}...</pre>
+    <div class="upload-area">
+      <label
+        class="upload-box"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
+      >
+        <input type="file" accept="image/*" @change="handleFileChange" hidden ref="fileInput" />
+        <div @click="triggerFileInput" class="upload-content">
+          <div v-if="!previewUrl">Click or drop an image here</div>
+          <img v-else :src="previewUrl" class="preview-image" />
+        </div>
+      </label>
+      <button @click="getVector" :disabled="!imageFile">Get Image Vector</button>
+
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { ref } from 'vue'
+  import { watch } from 'vue'
+  import { getImageVector } from '@/composables/useClipVector.js'
+
+  import { sayHi } from '../composables/test.js'
+  sayHi()
+
   
   const imageFile = ref(null);
   const vector = ref(null);
@@ -50,6 +62,30 @@
       status.value = 'Upload failed. See console.';
     }
   }
+  
+  const handleDrop = (e) => {
+    const file = e.dataTransfer.files[0]
+    if (file) {
+      imageFile.value = file
+      previewUrl.value = URL.createObjectURL(file)
+    }
+  }
+
+    watch(imageFile, (newFile) => {
+    console.log('Uploaded file:', newFile)
+    })
+
+
+    const getVector = async () => {
+  if (!imageFile.value) return
+  const vector = await getImageVector(imageFile.value)
+  if (vector) {
+    console.log('Got vector:', vector)
+  } else {
+    console.error('No vector returned.')
+  }
+}
+
   </script>
   
   <style scoped>
