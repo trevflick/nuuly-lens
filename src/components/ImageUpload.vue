@@ -1,101 +1,91 @@
 <template>
-    <div class="upload-area">
-      <label
-        class="upload-box"
-        @dragover.prevent
-        @drop.prevent="handleDrop"
-      >
-        <input type="file" accept="image/*" @change="handleFileChange" hidden ref="fileInput" />
-        <div @click="triggerFileInput" class="upload-content">
-          <div v-if="!previewUrl">Click or drop an image here</div>
-          <img v-else :src="previewUrl" class="preview-image" />
-        </div>
-      </label>
-      <button @click="getVector" :disabled="!imageFile">Get Image Vector</button>
-
+    <div class="upload-container">
+      <h2>Upload a Shirt Photo</h2>
+  
+      <input type="file" @change="handleFileChange" accept="image/*" />
+      <button @click="submitImage" :disabled="!imageFile">Upload & Match</button>
+  
+      <div v-if="uploadResult" class="result">
+        <h3>🧠 Matched Item:</h3>
+        <p><strong>{{ uploadResult.displayName }}</strong></p>
+        <p>{{ uploadResult.colorDisplayName }} - {{ uploadResult.category }}</p>
+        <img :src="uploadResult.image" alt="Matched shirt" width="200" />
+      </div>
+  
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </div>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
-  import { watch } from 'vue'
-  import { getImageVector } from '@/composables/useClipVector.js'
-
-  import { sayHi } from '../composables/test.js'
-  sayHi()
-
+  <script>
+  export default {
+    data() {
+      return {
+        imageFile: null,
+        uploadResult: null,
+        errorMessage: '',
+      };
+    },
+    methods: {
+      handleFileChange(event) {
+        this.imageFile = event.target.files[0];
+      },
+      async submitImage() {
+        this.uploadResult = null;
+        this.errorMessage = '';
   
-  const imageFile = ref(null);
-  const vector = ref(null);
-  const status = ref('');
+        if (!this.imageFile) return;
   
-  function onFileChange(e) {
-    imageFile.value = e.target.files[0];
-    vector.value = null;
-    status.value = '';
-  }
+        const formData = new FormData();
+        formData.append('image', this.imageFile);
   
-  async function submitImage() {
-    if (!imageFile.value) return;
+        try {
+          const response = await fetch('http://localhost:5000/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
   
-    status.value = '⏳ Uploading and vectorizing...';
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+          }
   
-    const formData = new FormData();
-    formData.append('image', imageFile.value);
-  
-    try {
-      const res = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-  
-      const data = await res.json();
-  
-      if (data.vector) {
-        vector.value = data.vector;
-        status.value = 'Vector received!';
-      } else {
-        status.value = 'No vector returned.';
-      }
-    } catch (err) {
-      console.error('Error uploading:', err);
-      status.value = 'Upload failed. See console.';
-    }
-  }
-  
-  const handleDrop = (e) => {
-    const file = e.dataTransfer.files[0]
-    if (file) {
-      imageFile.value = file
-      previewUrl.value = URL.createObjectURL(file)
-    }
-  }
-
-    watch(imageFile, (newFile) => {
-    console.log('Uploaded file:', newFile)
-    })
-
-
-    const getVector = async () => {
-  if (!imageFile.value) return
-  const vector = await getImageVector(imageFile.value)
-  if (vector) {
-    console.log('Got vector:', vector)
-  } else {
-    console.error('No vector returned.')
-  }
-}
-
+          const data = await response.json();
+          this.uploadResult = data.matchedItem;
+        } catch (err) {
+          console.error('Upload error:', err);
+          this.errorMessage = 'Upload failed. Is your backend running?';
+        }
+      },
+    },
+  };
   </script>
   
   <style scoped>
-  .image-upload {
-    padding: 1rem;
-    max-width: 400px;
-    margin: 0 auto;
+  .upload-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
     text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    font-family: sans-serif;
+  }
+  input {
+    margin-bottom: 1rem;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  .result {
+    margin-top: 2rem;
+  }
+  .error {
+    color: red;
+    margin-top: 1rem;
   }
   </style>
   
