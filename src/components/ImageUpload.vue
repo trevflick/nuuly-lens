@@ -1,91 +1,65 @@
-// this will handle uploading a pic of a piece of clothing
-// just wanted to test it as a component
-// so you can drag a pic in OR just upload it
-// it's gonna store it 
-// it's gonna need to be converted into a vector or something to classify it 
 <template>
-    <div class="upload-area">
-      <label
-        class="upload-box"
-        @dragover.prevent
-        @drop.prevent="handleDrop"
-      >
-        <input type="file" accept="image/*" @change="handleFileChange" hidden ref="fileInput" />
-        <div @click="triggerFileInput" class="upload-content">
-          <div v-if="!previewUrl">📸 Click or drop an image here</div>
-          <img v-else :src="previewUrl" class="preview-image" />
-        </div>
-      </label>
+    <div class="image-upload">
+      <h2>Upload an image to find a match</h2>
+  
+      <input type="file" @change="onFileChange" accept="image/*" />
+      <button @click="submitImage" :disabled="!imageFile">Get Vector</button>
+  
+      <p v-if="status">{{ status }}</p>
+      <pre v-if="vector">🔎 Vector (first few): {{ vector.slice(0, 5) }}...</pre>
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue'
-  import { watch } from 'vue'
-
+  import { ref } from 'vue';
   
-  const fileInput = ref(null)
-  const imageFile = ref(null)
-  const previewUrl = ref(null)
+  const imageFile = ref(null);
+  const vector = ref(null);
+  const status = ref('');
   
-  const triggerFileInput = () => {
-    fileInput.value.click()
+  function onFileChange(e) {
+    imageFile.value = e.target.files[0];
+    vector.value = null;
+    status.value = '';
   }
   
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      imageFile.value = file
-      previewUrl.value = URL.createObjectURL(file)
+  async function submitImage() {
+    if (!imageFile.value) return;
+  
+    status.value = '⏳ Uploading and vectorizing...';
+  
+    const formData = new FormData();
+    formData.append('image', imageFile.value);
+  
+    try {
+      const res = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+  
+      const data = await res.json();
+  
+      if (data.vector) {
+        vector.value = data.vector;
+        status.value = 'Vector received!';
+      } else {
+        status.value = 'No vector returned.';
+      }
+    } catch (err) {
+      console.error('Error uploading:', err);
+      status.value = 'Upload failed. See console.';
     }
   }
-  
-  const handleDrop = (e) => {
-    const file = e.dataTransfer.files[0]
-    if (file) {
-      imageFile.value = file
-      previewUrl.value = URL.createObjectURL(file)
-    }
-  }
-
-    watch(imageFile, (newFile) => {
-    console.log('Uploaded file:', newFile)
-    })
-
-
   </script>
   
   <style scoped>
-  .upload-area {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-  }
-  
-  .upload-box {
-    border: 2px dashed #ccc;
-    border-radius: 12px;
-    padding: 2rem;
-    cursor: pointer;
-    width: 300px;
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .image-upload {
+    padding: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
     text-align: center;
-    background: #f9f9f9;
-    transition: 0.2s ease;
-  }
-  
-  .upload-box:hover {
-    background: #f0f0f0;
-  }
-  
-  .preview-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    border: 1px solid #ddd;
+    border-radius: 8px;
   }
   </style>
   
