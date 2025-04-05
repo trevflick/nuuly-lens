@@ -1,28 +1,32 @@
-import express from 'express';
-import cors from 'cors';
-import uploadRoute from './upload.js';
-import dotenv from 'dotenv';
+import express from "express";
+import fileUpload from "express-fileupload";
+import cors from "cors";
+import dotenv from "dotenv";
+import uploadRoute from "./upload.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+// Setup __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env from root
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const app = express();
-const PORT = 5000;
+const PORT = 5050;
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-}));
-
+// Middleware
+app.use(cors());
+app.use(fileUpload());
 app.use(express.json());
 
-// 👋 Add this route right here!
-app.get('/', (req, res) => {
-  res.send('👋 Server is alive!');
-});
+// Mount upload route
+app.use("/api/upload", uploadRoute);
 
-// Your upload route
-app.use('/api', uploadRoute);
+app.get("/", (req, res) => {
+  res.send("👋 Server is alive!");
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on http://localhost:${PORT}`);

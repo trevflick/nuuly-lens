@@ -1,46 +1,58 @@
+import express from "express";
+import Replicate from "replicate";
+import fs from "fs";
 
-import express from 'express';
-import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
-import Replicate from 'replicate';
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+// ✅ Load .env from the root directory
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+console.log("✅ Token in upload.js:", process.env.REPLICATE_API_TOKEN);
+
+
+// ✅ Initialize Replicate
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-router.post('/upload', upload.single('image'), async (req, res) => {
-  try {
-    const filePath = req.file.path;
+console.log("✅ Token in upload.js:", process.env.REPLICATE_API_TOKEN);
 
-    const imageBuffer = fs.readFileSync(filePath);
-    const base64Image = imageBuffer.toString('base64');
+
+router.post("/", async (req, res) => {
+  try {
+    if (!req.files || !req.files.image) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const image = req.files.image;
+    const savePath = `uploads/${Date.now()}-${image.name}`;
+    await image.mv(savePath);
+
+    console.log("📥 Uploaded file saved at:", savePath);
 
     const output = await replicate.run(
       "andreasjansson/clip-features:75b33f253f7714a281ad3e9b28f63e3232d583716ef6718f2e46641077ea040a",
       {
         input: {
-          image: `data:image/jpeg;base64,${base64Image}`,
-          input: "a"
-        }
+          image: fs.createReadStream(savePath),
+        },
       }
     );
 
-    fs.unlinkSync(filePath); // cleanup temp image
-
-    const vector = output?.[0]?.embedding;
-    if (!vector) throw new Error("No vector returned.");
-
-    res.json({ vector });
+    console.log("🔁 Received vector:", output);
+    res.json({ vector: output });
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ error: 'Failed to process image' });
+    console.error("❌ Upload error:", err);
+    res.status(500).json({ error: "Upload failed", details: err.message });
   }
 });
 

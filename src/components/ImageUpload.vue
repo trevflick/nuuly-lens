@@ -1,91 +1,43 @@
 <template>
-    <div class="upload-container">
-      <h2>Upload a Shirt Photo</h2>
-  
-      <input type="file" @change="handleFileChange" accept="image/*" />
-      <button @click="submitImage" :disabled="!imageFile">Upload & Match</button>
-  
-      <div v-if="uploadResult" class="result">
-        <h3>🧠 Matched Item:</h3>
-        <p><strong>{{ uploadResult.displayName }}</strong></p>
-        <p>{{ uploadResult.colorDisplayName }} - {{ uploadResult.category }}</p>
-        <img :src="uploadResult.image" alt="Matched shirt" width="200" />
+    <div>
+      <h2>Upload an Image</h2>
+      <input type="file" @change="handleFileChange" />
+      <button @click="submitImage">Submit</button>
+      <div v-if="result">
+        <h3>Vector (first 5 values):</h3>
+        <code>{{ result.slice(0, 5) }}</code>
       </div>
-  
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </div>
   </template>
   
-  <script>
-  export default {
-    data() {
-      return {
-        imageFile: null,
-        uploadResult: null,
-        errorMessage: '',
-      };
-    },
-    methods: {
-      handleFileChange(event) {
-        this.imageFile = event.target.files[0];
-      },
-      async submitImage() {
-        this.uploadResult = null;
-        this.errorMessage = '';
+  <script setup>
+  import { ref } from "vue";
   
-        if (!this.imageFile) return;
+  const image = ref(null);
+  const result = ref(null);
   
-        const formData = new FormData();
-        formData.append('image', this.imageFile);
+  const handleFileChange = (event) => {
+    image.value = event.target.files[0];
+  };
   
-        try {
-          const response = await fetch('http://localhost:5000/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
+  const submitImage = async () => {
+    const formData = new FormData();
+    formData.append("image", image.value);
   
-          if (!response.ok) {
-            throw new Error(`Upload failed with status ${response.status}`);
-          }
+    try {
+      const res = await fetch("http://localhost:5050/api/upload", {
+        method: "POST",
+        body: formData,
+      });
   
-          const data = await response.json();
-          this.uploadResult = data.matchedItem;
-        } catch (err) {
-          console.error('Upload error:', err);
-          this.errorMessage = 'Upload failed. Is your backend running?';
-        }
-      },
-    },
+      if (!res.ok) {
+        throw new Error(`Upload failed with status ${res.status}`);
+      }
+  
+      const data = await res.json();
+      result.value = data.vector;
+    } catch (err) {
+      console.error("🔥 Upload error:", err);
+    }
   };
   </script>
-  
-  <style scoped>
-  .upload-container {
-    max-width: 500px;
-    margin: 2rem auto;
-    padding: 2rem;
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    text-align: center;
-    font-family: sans-serif;
-  }
-  input {
-    margin-bottom: 1rem;
-  }
-  button {
-    padding: 0.5rem 1rem;
-    font-weight: bold;
-    background: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-  }
-  .result {
-    margin-top: 2rem;
-  }
-  .error {
-    color: red;
-    margin-top: 1rem;
-  }
-  </style>
-  
