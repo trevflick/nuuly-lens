@@ -1,43 +1,41 @@
 <template>
     <div>
-      <h2>Upload an Image</h2>
       <input type="file" @change="handleFileChange" />
-      <button @click="submitImage">Submit</button>
-      <div v-if="result">
-        <h3>Vector (first 5 values):</h3>
-        <code>{{ result.slice(0, 5) }}</code>
-      </div>
+      <button @click="uploadImage">Upload</button>
     </div>
   </template>
   
-  <script setup>
-  import { ref } from "vue";
+  <script>
+  export default {
+    data() {
+      return {
+        imageFile: null,
+      };
+    },
+    methods: {
+      handleFileChange(event) {
+        this.imageFile = event.target.files[0];
+      },
+      async uploadImage() {
+        if (!this.imageFile) return;
   
-  const image = ref(null);
-  const result = ref(null);
+        const formData = new FormData();
+        formData.append("image", this.imageFile);
   
-  const handleFileChange = (event) => {
-    image.value = event.target.files[0];
-  };
+        try {
+          const res = await fetch("http://localhost:5050/api/upload", {
+            method: "POST",
+            body: formData,
+          });
   
-  const submitImage = async () => {
-    const formData = new FormData();
-    formData.append("image", image.value);
-  
-    try {
-      const res = await fetch("http://localhost:5050/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-  
-      if (!res.ok) {
-        throw new Error(`Upload failed with status ${res.status}`);
-      }
-  
-      const data = await res.json();
-      result.value = data.vector;
-    } catch (err) {
-      console.error("🔥 Upload error:", err);
-    }
+          const data = await res.json();
+          console.log("🎯 Match result:", data);
+          // Show data.bestMatch or data.uploadedImageUrl in UI
+        } catch (err) {
+          console.error("❌ Upload failed:", err);
+        }
+      },
+    },
   };
   </script>
+  

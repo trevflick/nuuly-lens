@@ -6,20 +6,22 @@ import uploadRoute from "./upload.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Setup __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from root
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+if (!process.env.REPLICATE_API_TOKEN) {
+  console.warn("Missing REPLICATE_API_TOKEN in .env");
+}
 
 const app = express();
 const PORT = 5050;
 
-// Middleware
 app.use(cors());
 app.use(fileUpload());
 app.use(express.json());
+
 
 // Mount upload route
 app.use("/api/upload", uploadRoute);
@@ -29,5 +31,9 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running on http://localhost:${PORT}`);
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
+
+
+
+
