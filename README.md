@@ -22,7 +22,7 @@ Built with:
 ### 1. Clone this repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nuuly-lens.git
+git clone https://github.com/trevflick/nuuly-lens.git
 cd nuuly-lens
 ```
 
