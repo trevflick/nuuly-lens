@@ -1,4 +1,4 @@
-# Nuuly Lens – Frontend Engineering Challenge
+# Nuuly Lens
 
 Nuuly Lens is a full-stack image search tool that lets users upload a photo and see the top 3 most similar Nuuly clothing items, styled like the Nuuly site itself.
 
@@ -6,10 +6,16 @@ Built with:
 - Vue 3 + Vite (frontend)
 - Express (backend)
 - Replicate’s CLIP model (for image vectorization)
-- GitHub Pages (for hosting product images) (couldn't access the jpegs hosted on Nuuly's actual site)
+- GitHub Pages (for hosting product images)
 - Cloudflare Worker (for image upload endpoint)
 
 ---
+
+### Landing Page
+![Landing Page](client/screenshots/landingPage.png)
+
+### Match Results
+![Upload Page](client/screenshots/uploadPage.png)
 
 ## Project Setup
 
