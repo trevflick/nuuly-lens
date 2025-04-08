@@ -136,4 +136,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-/uploads
+# photo uploads
+uploads/
+
+# cloudflare stuff
+image-uploader/
