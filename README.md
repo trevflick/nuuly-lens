@@ -39,7 +39,8 @@ REPLICATE_API_TOKEN=your_token_here
 This is used to authenticate with the Replicate API.
 
 > You can either [generate a replicate token here](https://replicate.com/account/api-tokens)
-> OR you can EMAIL ME (me@trevorflick.com) and I'll give you mine to demo this :) (i have enough free credits for thousands of calls (and a rate limiter))
+> OR you can EMAIL ME (me@trevorflick.com) and I'll give you mine to demo this :)
+> (I have enough free credits for thousands of calls (and a rate limiter))
 
 
 ---
@@ -83,9 +84,9 @@ npm run dev
 Open [http://localhost:5173](http://localhost:5173) in your browser and:
 
 - Upload a shirt
-- Your image gets send to [this CLIP API](https://replicate.com/andreasjansson/clip-features/) where it get vectorized for comparison against the Nuuly catalog items
-- Receive 3 visual matches from the Nuuly catalog
-- Matches computed locally from a pre-vectorized dataset in `backend/revectorized_nuuly_data.json`
+- Your image gets send to [this CLIP API](https://replicate.com/andreasjansson/clip-features/) where it gets vectorized for comparison against the Nuuly catalog items
+- You will receive 3 visual matches from the Nuuly catalog
+- The matches are computed locally from a pre-vectorized dataset in `backend/revectorized_nuuly_data.json`
 
 ---
 
