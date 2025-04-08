@@ -39,7 +39,7 @@ REPLICATE_API_TOKEN=your_token_here
 This is used to authenticate with the Replicate API.
 
 > You can either [generate a replicate token here](https://replicate.com/account/api-tokens)
-> OR you can [email me](me@trevorflick.com) and I'll give you mine (i have enough free credits for thousands of calls (and a rate limiter))
+> OR you can EMAIL ME (me@trevorflick.com) and I'll give you mine to demo this :) (i have enough free credits for thousands of calls (and a rate limiter))
 
 
 ---
