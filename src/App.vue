@@ -1,14 +1,43 @@
-<script setup>
-import ImageUpload from '@/components/ImageUpload.vue'
-
-</script>
-
 <template>
-    <h1>Upload a pic to find something similar yay</h1>
+  <div class="app-layout">
+    <StickyHeader />
 
-    <ImageUpload />
+    <transition name="fade" mode="out-in">
+      <div class="page-content">
+        <router-view />
+      </div>
+    </transition>
 
+    <SiteFooter />
+  </div>
 </template>
 
-<style scoped>
+<script setup>
+import StickyHeader from './components/StickyHeader.vue'
+import SiteFooter from './components/SiteFooter.vue'
+</script>
+
+<style>
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: rgb(250, 247, 245);
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.9s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
