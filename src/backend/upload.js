@@ -47,10 +47,10 @@ router.post("/", async (req, res) => {
     }
 
     const { url: cloudflareImageUrl } = await cloudRes.json();
-    console.log("✅ Cloudflare image URL:", cloudflareImageUrl);
+    console.log("Cloudflare image URL:", cloudflareImageUrl);
 
     // Send Cloudflare image URL to Replicate for vector embedding
-    console.log("📡 Sending image to Replicate:", cloudflareImageUrl);
+    console.log("Sending image to Replicate:", cloudflareImageUrl);
 
     const output = await replicate.run(
       "andreasjansson/clip-features:75b33f253f7714a281ad3e9b28f63e3232d583716ef6718f2e46641077ea040a",
@@ -66,8 +66,8 @@ router.post("/", async (req, res) => {
     const userVector = output[0]?.embedding;
 
     if (!userVector || !Array.isArray(userVector)) {
-      console.error("❌ Could not extract a valid vector. Full output:", output);
-      throw new Error("❌ No valid embedding returned from Replicate");
+      console.error("Could not extract a valid vector. Full output:", output);
+      throw new Error("No valid embedding returned from Replicate");
     }
 
     console.log("Final selected userVector:", userVector.slice(0, 5));
@@ -84,24 +84,22 @@ router.post("/", async (req, res) => {
       return dot / (normA * normB);
     }
 
-    // Find best match
-    let bestMatch = null;
-    let highestSim = -1;
+    // Rank all products by similarity
+    const scoredMatches = products
+      .map(product => {
+        const productVector = Array.isArray(product.vector) && product.vector[0]?.embedding;
+        if (!productVector) return null;
 
-    for (const product of products) {
-      const productVector = Array.isArray(product.vector) && product.vector[0]?.embedding;
-      if (!productVector) continue;
+        const sim = cosineSimilarity(userVector, productVector);
+        return { product, similarity: sim };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.similarity - a.similarity);
 
-      const sim = cosineSimilarity(userVector, productVector);
-      if (sim > highestSim) {
-        highestSim = sim;
-        bestMatch = product;
-      }
-    }
+    const topMatches = scoredMatches.slice(0, 3);
 
     res.json({
-      bestMatch,
-      similarity: highestSim,
+      topMatches,
       uploadedImageUrl: cloudflareImageUrl,
     });
 
