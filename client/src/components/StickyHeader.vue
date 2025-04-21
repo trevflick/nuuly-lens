@@ -1,25 +1,27 @@
-  <template>
-    <header class="sticky-header">
-      <h1 class="logo">nuuly lens</h1>
-    </header>
-  </template>
-  
-  <style scoped>
-  .sticky-header {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid #eee;
-    z-index: 1000;
-  }
-  
-  .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #222;
-    margin: 0;
-  }
-  </style>
-  
+<template>
+  <header class="sticky-header">
+    <router-link to="/" class="logo-link">
+      <img src="@/assets/nuuly-logo.png" alt="Nuuly logo" class="logo" />
+    </router-link>
+  </header>
+</template>
+
+<script setup></script>
+
+<style scoped>
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  padding: 1rem 0;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.logo {
+  height: 28px;
+  object-fit: contain;
+}
+</style>
