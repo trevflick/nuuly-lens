@@ -1,68 +1,76 @@
-<template>
-     <div class="page-container">
-        <div class="upload-container">
-            <h1 class="main-title">
-                 {{ results.length ? 'Here Are Your Top Matches:' : 'Upload An Image To Find Your Match' }}
-            </h1>  
-         <label class="custom-file-upload">
-            <input type="file" @change="handleFileChange" />Upload</label>
-                <button @click="uploadImage" :disabled="isLoading">
-                    {{ isLoading ? "Matching..." : "Match" }}
-                </button>
-      <div v-if="isLoading" class="loader">Looking for your match...</div>
-      <div v-if="results.length && !isLoading" class="results-grid">
-        <div v-for="(result, index) in results" :key="index" class="result-card">
-          <img :src="result.product.image" :alt="result.product.displayName" class="result-image" />
-          <div class="result-details">
-            <h3 class="result-name">{{ result.product.displayName }}</h3>
-            <p class="result-score">
-              Similarity: {{ (result.similarity * 100).toFixed(2) }}%
-            </p>
-          </div>
+  <template>
+    <div class="page-container">
+      <div class="upload-container">
+        <h1 class="main-title">
+          {{ results.length ? 'Here Are Your Top Matches:' : 'Upload An Image To Find Your Match' }}
+        </h1>
+  
+        <label class="custom-file-upload">
+          <input type="file" @change="handleFileChange" />
+          Upload
+        </label>
+  
+        <button @click="uploadImage" :disabled="isLoading">
+          {{ isLoading ? "Matching..." : "Match" }}
+        </button>
+  
+        <div v-if="isLoading" class="loader">Looking for your match...</div>
+      </div>
+  
+      <div class="results-container" v-if="results.length">
+        <div v-for="(match, index) in results" :key="index" class="match">
+          <img :src="match.imageUrl" :alt="match.displayName" />
+          <p>{{ match.displayName }} ({{ (match.similarity * 100).toFixed(1) }}%)</p>
         </div>
       </div>
     </div>
-  </div>
   </template>
   
-  <script>
+  <script setup>
+  import { ref } from 'vue'
   
-  export default {
-    data() {
-      return {
-        imageFile: null,
-        results: [],
-        isLoading: false,
-      };
-    },
-    methods: {
-      handleFileChange(event) {
-        this.imageFile = event.target.files[0];
-      },
-      async uploadImage() {
-        if (!this.imageFile) return;
+  const image = ref(null)
+  const results = ref([])
+  const isLoading = ref(false)
   
-        this.isLoading = true;
-        const formData = new FormData();
-        formData.append("image", this.imageFile);
+  function handleFileChange(event) {
+    image.value = event.target.files[0]
+  }
   
-        try {
-          const res = await fetch("http://localhost:5050/api/upload", {
-            method: "POST",
-            body: formData,
-          });
+  async function uploadImage() {
+    if (!image.value) return
   
-          const data = await res.json();
-          console.log("Match results:", data.topMatches);
-          this.results = data.topMatches;
-        } catch (err) {
-          console.error("Upload failed:", err);
-        } finally {
-          this.isLoading = false;
-        }
-      },
-    },
-  };
+    isLoading.value = true
+    results.value = []
+  
+    const formData = new FormData()
+    formData.append('image', image.value)
+  
+    try {
+      const response = await fetch('http://localhost:5050/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+  
+      const data = await response.json()
+  
+      if (data.bestMatch) {
+        results.value = [
+          {
+            displayName: data.bestMatch.displayName,
+            imageUrl: data.uploadedImageUrl || data.bestMatch.image,
+            similarity: data.similarity,
+          },
+        ]
+      } else {
+        console.warn("No match found")
+      }
+    } catch (error) {
+      console.error("Upload failed:", error)
+    } finally {
+      isLoading.value = false
+    }
+  }
   </script>
   
   <style scoped>
@@ -180,6 +188,5 @@
   display: inline-block;
   margin-right: 1rem;
 }
-
-  </style>
+</style>
   
