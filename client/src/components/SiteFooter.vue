@@ -1,37 +1,35 @@
-<template>
+  <template>
     <footer class="site-footer">
-      <div class="footer-left">Made by Trevor Flick</div>
-      <div class="footer-right">
-        <a href="https://github.com/trevflick" target="_blank">GitHub</a> |
-        <a href="https://trevorflick.com" target="_blank">Website</a>
-      </div>
+      <p>Made by Trevor Flick</p>
+      <p>
+        <a href="https://github.com/trevflick" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+        <a href="https://trevorflick.com" target="_blank" rel="noopener noreferrer">
+          Website
+        </a>
+      </p>
     </footer>
   </template>
   
   <style scoped>
   .site-footer {
-    background-color: #3C5260;
-    width: 100%;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: rgb(250, 247, 245);
-    font-size: 0.9rem;
+    margin-top: auto;
+    text-align: center;
+    padding: 2rem;
+    background-color: #fafafa;
+    color: #999;
+    font-size: 0.875rem;
   }
   
-  .footer-left {
-    color: rgb(250, 247, 245);
-  }
-  
-  .footer-right a {
-    color: rgb(250, 247, 245);
-    text-decoration: none;
-    margin: 0 0.5rem;
-  }
-  
-  .footer-right a:hover {
+  .site-footer a {
+    color: #666;
     text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .site-footer a:hover {
+    color: #333;
   }
   </style>
   
