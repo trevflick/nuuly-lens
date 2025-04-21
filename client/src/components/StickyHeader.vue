@@ -1,9 +1,6 @@
-<template>
+  <template>
     <header class="sticky-header">
-        <router-link to="/" class="logo-link">
-            <img src="@/assets/nuuly-logo.png" alt="Nuuly logo" class="logo" />
-        </router-link>
-
+      <h1 class="logo">nuuly lens</h1>
     </header>
   </template>
   
@@ -12,14 +9,17 @@
     position: sticky;
     top: 0;
     background-color: white;
-    padding: 1rem 0;
-    z-index: 10;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
+    z-index: 1000;
   }
+  
   .logo {
-    height: 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    margin: 0;
   }
   </style>
   
