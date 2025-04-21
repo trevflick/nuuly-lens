@@ -4,7 +4,7 @@
         v-for="(match, index) in matches"
         :key="index"
         :displayName="match.displayName"
-        :imageUrl="match.image"
+        :imageUrl="match.imageUrl"
         :similarity="match.similarity"
         :brand="match.brand" 
       />
